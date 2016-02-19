@@ -1,0 +1,7 @@
+{
+    "host": "localhost",
+    "user": "root",
+    "password": "",
+    "dbname": "cardData",
+    "charset": "utf8mb4"
+}
