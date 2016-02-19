@@ -1,5 +1,6 @@
 from flask import Flask
 from flask import request
+from werkzeug.serving import run_simple
 import pymysql.cursors
 
 import json
@@ -41,5 +42,8 @@ def cardReader():
     connection.commit()
     connection.close()
 
+    return ""
+
 if __name__ == "__main__":
-    app.run()
+    run_simple(config["website"], config["port"], app,
+               use_reloader=True, use_debugger=True, use_evalex=True)

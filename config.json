@@ -3,5 +3,7 @@
     "user": "root",
     "password": "",
     "dbname": "cardData",
-    "charset": "utf8mb4"
+    "charset": "utf8mb4",
+    "website": "localhost",
+    "port": 5000
 }
