@@ -1,0 +1,80 @@
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Swipe</title>
+    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+    <script type="text/javascript">
+      // adapted from https://gist.github.com/marothstein/5736913
+      var swipeBuffer = "";
+      var swipeTimeout = null;
+      var TIMEOUT_DURATION = 100;
+
+      var attachSwipe = function() {
+        $('body').keypress(function(e) {
+          keyPressed(e);
+        });
+      };
+
+      var addKeyToSwipeBuffer = function(keyCode, keyChar) {
+        if (swipeBuffer == null) {
+          swipeBuffer = "";
+        }
+        swipeBuffer += keyChar;
+      };
+
+      var clearSwipeBuffer = function() {
+        delete swipeBuffer;
+        swipeBuffer = null;
+      };
+
+      var keyPressed = function(e) {
+        addKeyToSwipeBuffer(e.keyCode, String.fromCharCode(e.keyCode));
+
+        if (swipeTimeout == null) {
+          swipeTimeout = setTimeout("processSwipe()", TIMEOUT_DURATION);
+        } else {
+          clearTimeout(swipeTimeout);
+          swipeTimeout = setTimeout("processSwipe()", TIMEOUT_DURATION);
+        }
+      };
+
+      var processSwipe = function() {
+        var swipeSplit = swipeBuffer.split('=');
+
+        if (validate(swipeSplit[1], swipeSplit[2])) {
+          var data = {
+            studentID: swipeSplit[1],
+            name: swipeSplit[2],
+            raw: swipeBuffer
+          }
+
+          $.ajax({
+            type: "POST",
+            url: '/card-reader',
+            data: data,
+            success: function() {
+              console.log('saved.');
+            }
+          });
+        }
+
+        clearSwipeBuffer();
+      };
+
+      var validate = function(studentId, name) {
+        if (/[0-9]/.test(studentId) && /[a-zA-Z\/\s]/.test(name)) {
+          return true;
+        }
+        return false;
+      }
+    </script>
+  </head>
+  <body>
+    Ayyy.
+    <script type="text/javascript">
+      $(document).ready(function() {
+        attachSwipe();
+      });
+    </script>
+  </body>
+</html>
