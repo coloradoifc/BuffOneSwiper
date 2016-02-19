@@ -34,12 +34,12 @@ def cardReader():
                                  charset=config["charset"],
                                  cursorclass=pymysql.cursors.DictCursor)
 
-        cursor = connection.cursor()
-        sql = "INSERT INTO dataList(name, studentID, cardText) VALUES(%s, %s, %s)"
-        cursor.execute(sql, (name, studentID, raw))
-        cursor.close()
-        connection.commit()
-        connection.close()
+    cursor = connection.cursor()
+    sql = "INSERT INTO dataList(name, studentID, cardText) VALUES(%s, %s, %s)"
+    cursor.execute(sql, (name, studentID, raw))
+    cursor.close()
+    connection.commit()
+    connection.close()
 
 if __name__ == "__main__":
     app.run()
