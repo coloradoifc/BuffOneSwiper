@@ -8,6 +8,7 @@
       var swipeBuffer = "";
       var swipeTimeout = null;
       var TIMEOUT_DURATION = 100;
+      var BLINK_DURATION = 400;
 
       var attachSwipe = function() {
         $('body').keypress(function(e) {
@@ -55,11 +56,17 @@
             data: data,
             success: function() {
               $('#display-text').html('Successful. Swipe another card.');
+              blink(1);
               console.log('saved.');
+            },
+            error: function() {
+              $('#display-text').html('Couldn\'t save, please try again');
+              blink(3);
             }
           });
         } else {
           $('#display-text').html('Couldn\'t read card');
+          blink(3);
         }
 
         clearSwipeBuffer();
@@ -70,6 +77,19 @@
           return true;
         }
         return false;
+      }
+
+      var blink = function(n) {
+        if (n > 0) {
+          var elem = $('#display-text');
+          setTimeout(function () {
+            elem.css('visibility', 'hidden');
+            setTimeout(function() {
+              elem.css('visibility', 'visible');
+              blink(n - 1);
+            }, BLINK_DURATION);
+          }, BLINK_DURATION);
+        }
       }
     </script>
   </head>
