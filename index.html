@@ -28,7 +28,7 @@
       };
 
       var keyPressed = function(e) {
-        addKeyToSwipeBuffer(e.keyCode, String.fromCharCode(e.keyCode));
+        addKeyToSwipeBuffer(e.keyCode, String.fromCharCode(e.keyCode).trim());
 
         if (swipeTimeout == null) {
           swipeTimeout = setTimeout("processSwipe()", TIMEOUT_DURATION);
@@ -42,6 +42,7 @@
         var swipeSplit = swipeBuffer.split('=');
 
         if (validate(swipeSplit[1], swipeSplit[2])) {
+          $('#display-text').html('Valid card. Sending data');
           var data = {
             studentID: swipeSplit[1],
             name: swipeSplit[2],
@@ -53,9 +54,12 @@
             url: '/card-reader',
             data: data,
             success: function() {
+              $('#display-text').html('Successful. Swipe another card.');
               console.log('saved.');
             }
           });
+        } else {
+          $('#display-text').html('Couldn\'t read card');
         }
 
         clearSwipeBuffer();
@@ -70,7 +74,7 @@
     </script>
   </head>
   <body>
-    Ayyy.
+    <h1 id="display-text">Swipe a card.</h1>
     <script type="text/javascript">
       $(document).ready(function() {
         attachSwipe();
