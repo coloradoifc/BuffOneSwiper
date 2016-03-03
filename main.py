@@ -1,5 +1,4 @@
-from flask import Flask
-from flask import request
+from flask import Flask, request
 from werkzeug.serving import run_simple
 import pymysql.cursors
 
