@@ -74,6 +74,31 @@
     .success {
       color: #319800
     }
+
+    .select-style {
+      font-size: 18px;
+      border: 1px solid #ccc;
+      width: 100%;
+      border-radius: 3px;
+      overflow: hidden;
+      background: #fafafa;
+    }
+
+    .select-style select {
+      font-size: 18px;
+      padding: 5px 8px;
+      width: 100%;
+      border: none;
+      box-shadow: none;
+      background: transparent;
+      background-image: none;
+      -webkit-appearance: none;
+    }
+
+    .select-style select:focus {
+      font-size: 18px;
+      outline: none;
+    }
   </style>
 
   <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
@@ -81,11 +106,33 @@
 <body>
   <div>
     <form id="create-form">
-      <h1 class="createHeadline">CU IFC Swiper</h1>
+      <h1 class="createHeadline">Create User</h1>
       <p class="subtitle">Powered by the <a href='http://coloradoifc.org/'>CU Boulder IFC</a></p>
       <br>
       <input id='create-email' type="text" placeholder="email address">
       <input id='create-password' type="password" placeholder="password">
+      <div class="select-style">
+        <select id='select-box'>
+          <option value="1">Acacia</option>
+          <option value="2">Alpha Epsilon Pi</option>
+          <option value="3">Alpha Gamma Omega</option>
+          <option value="4">Alpha Phi Delta</option>
+          <option value="5">Alpha Sigma Phi</option>
+          <option value="6">Chi Psi</option>
+          <option value="7">Phi Kappa Psi</option>
+          <option value="8">Phi Kappa Tau</option>
+          <option value="9">Pi Kappa Phi</option>
+          <option value="10">Sigma Alpha Epsilon</option>
+          <option value="11">Sigma Nu</option>
+          <option value="12">Sigma Phi Epsilon</option>
+          <option value="13">Tau Kappa Epsilon</option>
+          <option value="14">Theta Xi</option>
+          <option value="15">Zeta Beta Tau</option>
+          <option value="16">Delta Sigma Phi</option>
+          <option value="17">Alpha Delta Phi</option>
+          <option value="18">Delta Kappa Epsilon</option>
+        </select>
+      </div>
       <p id='feedback'></p>
       <input type="submit" id="create-submit" value="Create User">
     </form>
@@ -121,7 +168,8 @@
         url: '/create',
         data: {
           email: email,
-          password: password
+          password: password,
+          chapterID: $('#select-box').val()
         },
         success: function() {
           $('#feedback').html('User created.').attr('class', 'success');
