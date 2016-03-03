@@ -1,7 +1,4 @@
-from flask import Flask
-from flask import request
-from flask import session
-from flask import redirect
+from flask import Flask, request, session, redirect
 from flask.ext.api import status
 from werkzeug.serving import run_simple
 import bcrypt
