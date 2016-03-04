@@ -1,7 +1,7 @@
 from flask import Flask, request, render_template
 from werkzeug.serving import run_simple
 import pymysql.cursors
-import os
+
 
 import json
 
@@ -39,6 +39,5 @@ def cardReader():
     return ""
 
 if __name__ == "__main__":
-    print os.path.abspath(app.template_folder)
     run_simple(config["website"], config["port"], app,
                use_reloader=True, use_debugger=True, use_evalex=True)
