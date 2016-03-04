@@ -14,20 +14,6 @@ app = Flask(__name__, template_folder='templates')
 app.debug = config["debug"]
 app.secret_key = config["session-secret"]
 
-# get the index page
-try:
-    with open("index.html") as indexPage:
-        indexPage = indexPage.read()
-except:
-    indexPage = "Error cannot find index.html"
-
-# get the login page
-try:
-    with open("login.html") as loginPage:
-        loginPage = loginPage.read()
-except:
-    loginPage = "Error cannot find login.html"
-
 
 # check if the user is logged in
 def isLoggedin():
@@ -109,9 +95,9 @@ def removeSession():
     session.clear()
     return redirect("/", code=303)
 
+
 @app.route("/card-reader", methods=["POST"])
 def cardReader():
-
     if isLoggedin() == False:
         return "", status.HTTP_401_UNAUTHORIZED
 
