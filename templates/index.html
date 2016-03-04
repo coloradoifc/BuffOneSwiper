@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block head %}
+    {{ super() }}
+    <link href="{{ url_for('static', filename='css/index.css') }}" rel="stylesheet" type="text/css">
+    <script type="text/javascript" src="{{ url_for('static', filename='js/swipe.js') }}"></script>
+{% endblock %}
+{% block body %}
+    <h1 id="display-text">Swipe a card.</h1>
+    <script type="text/javascript">
+      $(document).ready(function() {
+        attachSwipe();
+      });
+    </script>
+{% endblock %}

@@ -1,25 +1,4 @@
-<html>
-  <head>
-    <meta charset="UTF-8">
-    <title>Swipe</title>
-    <link href='https://fonts.googleapis.com/css?family=Hind' rel='stylesheet' type='text/css'>
-    <style>
-      #display-text {
-        text-align: center;
-        font-size: 48pt;
-        font-family: 'Hind', sans-serif;
-        margin: 0;
-        position: absolute;
-        top: 40%;
-        left: 50%;
-        margin-right: -50%;
-        transform: translate(-50%, -40%)
-      }
-    </style>
-
-    <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
-    <script type="text/javascript">
-      // adapted from https://gist.github.com/marothstein/5736913
+// adapted from https://gist.github.com/marothstein/5736913
       var swipeBuffer = "";
       var swipeTimeout = null;
       var TIMEOUT_DURATION = 100;
@@ -106,14 +85,3 @@
           }, BLINK_DURATION);
         }
       }
-    </script>
-  </head>
-  <body>
-    <h1 id="display-text">Swipe a card.</h1>
-    <script type="text/javascript">
-      $(document).ready(function() {
-        attachSwipe();
-      });
-    </script>
-  </body>
-</html>

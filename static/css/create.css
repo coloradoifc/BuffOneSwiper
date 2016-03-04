@@ -1,0 +1,28 @@
+.success {
+  color: #319800
+}
+
+.select-style {
+  font-size: 18px;
+  border: 1px solid #ccc;
+  width: 100%;
+  border-radius: 3px;
+  overflow: hidden;
+  background: #fafafa;
+}
+
+.select-style select {
+  font-size: 18px;
+  padding: 5px 8px;
+  width: 100%;
+  border: none;
+  box-shadow: none;
+  background: transparent;
+  background-image: none;
+  -webkit-appearance: none;
+}
+
+.select-style select:focus {
+  font-size: 18px;
+  outline: none;
+}

@@ -1,15 +1,16 @@
-from flask import Flask, request, session, redirect
+from flask import Flask, request, session, redirect, render_template
 from flask.ext.api import status
 from werkzeug.serving import run_simple
 import bcrypt
 import pymysql.cursors
 import json
 
+
 # open up the config file
 with open("config.json") as config:
     config = json.loads(config.read())
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='templates')
 app.debug = config["debug"]
 app.secret_key = config["session-secret"]
 
@@ -62,24 +63,21 @@ def createDBConnection():
 def hashPassword(passwrd):
     return bcrypt.hashpw(passwrd.encode(), bcrypt.gensalt())
 
-
 # wraper to check hashed passwords, returns a bool
 def checkPassword(passwrd, hashedPass):
     return hashedPass.encode() == bcrypt.hashpw(passwrd.encode(),
                                                 hashedPass.encode())
 
-
 @app.route("/", methods=["GET"])
 def index():
     if isLoggedin():
-        return indexPage
+        return render_template('index.html')
     else:
-        return loginPage
+        return render_template('login.html')
 
 
 @app.route("/login", methods=["POST"])
 def login():
-
     email = request.form["email"]
     password = request.form["password"]
 
@@ -110,7 +108,6 @@ def removeSession():
     session["loggedin"] = False
     session.clear()
     return redirect("/", code=303)
-
 
 @app.route("/card-reader", methods=["POST"])
 def cardReader():
