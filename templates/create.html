@@ -1,0 +1,41 @@
+{% extends "base.html"  %}
+{% block head %}
+{{ super() }}
+<link href="{{ url_for('static', filename='css/create.css') }}" rel="stylesheet" type="text/css">
+{% endblock %}
+{% block body %}
+  <div>
+    <form id="form">
+      <h1 class="headline">Create User</h1>
+      <p class="subtitle">Powered by the <a href='http://coloradoifc.org/'>CU Boulder IFC</a></p>
+      <br>
+      <input id='create-email' type="text" placeholder="email address">
+      <input id='create-password' type="password" placeholder="password">
+      <div class="select-style">
+        <select id='select-box'>
+          <option value="1">Acacia</option>
+          <option value="2">Alpha Epsilon Pi</option>
+          <option value="3">Alpha Gamma Omega</option>
+          <option value="4">Alpha Phi Delta</option>
+          <option value="5">Alpha Sigma Phi</option>
+          <option value="6">Chi Psi</option>
+          <option value="7">Phi Kappa Psi</option>
+          <option value="8">Phi Kappa Tau</option>
+          <option value="9">Pi Kappa Phi</option>
+          <option value="10">Sigma Alpha Epsilon</option>
+          <option value="11">Sigma Nu</option>
+          <option value="12">Sigma Phi Epsilon</option>
+          <option value="13">Tau Kappa Epsilon</option>
+          <option value="14">Theta Xi</option>
+          <option value="15">Zeta Beta Tau</option>
+          <option value="16">Delta Sigma Phi</option>
+          <option value="17">Alpha Delta Phi</option>
+          <option value="18">Delta Kappa Epsilon</option>
+        </select>
+      </div>
+      <p id='feedback'></p>
+      <input type="submit" id="submit" value="Create User">
+    </form>
+  </div>
+  <script type="text/javascript" src="{{ url_for('static', filename='js/create.js') }}"></script>
+{% endblock %}

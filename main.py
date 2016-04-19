@@ -1,34 +1,18 @@
-from flask import Flask
-from flask import request
-from flask import session
-from flask import redirect
+from flask import Flask, request, session, redirect, render_template
 from flask.ext.api import status
 from werkzeug.serving import run_simple
 import bcrypt
 import pymysql.cursors
 import json
 
+
 # open up the config file
 with open("config.json") as config:
     config = json.loads(config.read())
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder='templates')
 app.debug = config["debug"]
 app.secret_key = config["session-secret"]
-
-# get the index page
-try:
-    with open("index.html") as indexPage:
-        indexPage = indexPage.read()
-except:
-    indexPage = "Error cannot find index.html"
-
-# get the login page
-try:
-    with open("login.html") as loginPage:
-        loginPage = loginPage.read()
-except:
-    loginPage = "Error cannot find login.html"
 
 
 # check if the user is logged in
@@ -65,24 +49,21 @@ def createDBConnection():
 def hashPassword(passwrd):
     return bcrypt.hashpw(passwrd.encode(), bcrypt.gensalt())
 
-
 # wraper to check hashed passwords, returns a bool
 def checkPassword(passwrd, hashedPass):
     return hashedPass.encode() == bcrypt.hashpw(passwrd.encode(),
                                                 hashedPass.encode())
 
-
 @app.route("/", methods=["GET"])
 def index():
     if isLoggedin():
-        return indexPage
+        return render_template('index.html')
     else:
-        return loginPage
+        return render_template('login.html')
 
 
 @app.route("/login", methods=["POST"])
 def login():
-
     email = request.form["email"]
     password = request.form["password"]
 
@@ -117,7 +98,6 @@ def removeSession():
 
 @app.route("/card-reader", methods=["POST"])
 def cardReader():
-
     if isLoggedin() == False:
         return "", status.HTTP_401_UNAUTHORIZED
 

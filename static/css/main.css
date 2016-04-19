@@ -1,0 +1,65 @@
+body {
+  font-family: 'Hind';
+  overflow: hidden;
+  background: #AAA;
+  color: #333;
+}
+#form {
+  height: auto;
+  margin: auto;
+  text-align: center;
+  border: none;
+  width: 400px;
+  padding: 30px;
+  border-radius: 3px;
+  margin-top: 75px;
+  background: #fff;
+  display: block;
+}
+
+#form input {
+  display: block;
+  margin: auto;
+  padding: 10px;
+  border-radius: 3px;
+  border: 1px solid #eee;
+  margin-bottom: 20px;
+  font-size: 18px;
+  width: 100%;
+}
+
+#submit {
+  background: #E6E2B0;
+  color: #333;
+}
+
+#submit:hover {
+  background: #D4D0A1;
+}
+
+.subtitle {
+  color: #666;
+  font-size: 0.9em;
+  margin-top: 0px;
+  margin-bottom: 0px;
+}
+
+a {
+  color: #666;
+  text-decoration: underline;
+}
+
+a:hover {
+  color: #D4D0A1;
+  cursor: pointer;
+}
+
+h1.headline {
+  font-size: 50px;
+  margin-bottom: 25px;
+  margin-top: 0px;
+}
+
+.error {
+  color: #A21515;
+}

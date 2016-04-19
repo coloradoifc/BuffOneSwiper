@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block body %}
+  <div>
+    <form id="form">
+      <h1 class="headline">CU IFC Swiper</h1>
+      <p class="subtitle">Powered by the <a href='http://coloradoifc.org/'>CU Boulder IFC</a></p>
+      <br>
+      <input id='login-email' type="text" placeholder="email address">
+      <input id='login-password' type="password" placeholder="password">
+      <p class='error'></p>
+      <input type="submit" id="submit" value="Login">
+    </form>
+  </div>
+
+  <script type="text/javascript" src="{{ url_for('static', filename='js/login.js') }}"></script>
+{% endblock %}
