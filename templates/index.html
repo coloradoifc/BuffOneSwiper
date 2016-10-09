@@ -1,14 +1,178 @@
 {% extends "base.html" %}
 {% block head %}
     {{ super() }}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.4/semantic.min.css" />
     <link href="{{ url_for('static', filename='css/index.css') }}" rel="stylesheet" type="text/css">
     <script type="text/javascript" src="{{ url_for('static', filename='js/swipe.js') }}"></script>
 {% endblock %}
 {% block body %}
-    <h1 id="display-text">Swipe a card.</h1>
+
+
+    <div class="left col">
+        <div class="header row">
+            CU IFC Card Swiper
+        </div>
+        <div class="body row scroll-y left">
+            <ul class="listview" id="event_list">
+                {% for event in event_list%}
+                <a><li event_id="{{event.id}}" {% if event.selected %}class="selected"{% endif %}>{{event.name}}</li></a>
+                {% endfor %}
+            </ul>
+        </div>
+        <a id="event_create_button">Create Event + </a>
+    </div>
+    <div class="right col">
+        <div class="header row">
+            Status: <span id="display-text">Swipe of card</span>
+        </div>
+        <div class="right_side_header">
+             <table id="user_list" class="ui celled table selectable striped">
+              <thead>
+                <tr>
+                  <th class="sorted descending six wide">Name</th>
+                  <th class="four wide">Swipe Time</th>
+                  <th class="six wide">Blacklisted</th>
+                </tr>
+              </thead>
+              </table>
+        </div>
+        <div class="user_info">
+          <ul>
+            <li>{{chapter}}</li>
+            <li>{{email}} - <a href="/logout">logout</a></li>
+          </ul>
+        </div>
+        <div class="body row scroll-y right">
+            <table id="user_list" class="ui celled table selectable striped">
+      <thead>
+        <tr style="display: none;">
+          <th class="sorted descending six wide">Name</th>
+          <th class="four wide">Swipe Time</th>
+          <th class="six wide">Blacklisted</th>
+        </tr>
+      </thead>
+      <tbody id="user_list_body">
+
+        {% for item in dataList%}
+        <tr>
+          <td class="six wide">{{item.name}}</td>
+          <td class="four wide">{{item.timeStamp}}</td>
+          <td class="six wide">No</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+      <tfoot class="full-width">
+        <tr>
+          <th></th>
+          <th colspan="4">
+            <!--div class="ui right floated small red labeled icon button">
+              <i class="user icon"></i> Blacklist User
+            </div-->
+          </th>
+        </tr>
+      </tfoot>
+    </table>
+        </div>
+    </div>
+
+    <div id="overlay">
+        <div id="center_overlay">
+            <h3>Create New Event</h3>
+            <input type="text" name="event_name" id="event_name">
+            <button id="submit_new_event">Submit</button>
+            <button id="close_new_event_window">Close Window</button>
+        </div>
+    </div>
+
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.4/semantic.min.js"></script>
     <script type="text/javascript">
-      $(document).ready(function() {
-        attachSwipe();
-      });
+
+        currentID = {{eventID}}
+
+        $(document).ready(function() {
+            attachSwipe();
+
+            $("#event_create_button").on("click", function() {
+              $("#overlay").show()
+              $("#center_overlay").show()
+            })
+
+            $("#close_new_event_window").on("click", function() {
+                $("#overlay").hide()
+                $("#center_overlay").hide()
+            })
+
+            $("#submit_new_event").on("click", function() {
+
+                var eventName = {"event_name": $("#event_name").val()}
+
+                $.ajax({
+                  type: "POST",
+                  url: '/add_event',
+                  data: eventName,
+                  success: function(text_response) {
+
+                    var server_response = JSON.parse(text_response)
+
+                    var prepend_text = "<a><li event_id='" +
+                    server_response["url"] + "'>" + server_response["name"] +"</li></a>"
+
+                    $("#event_list").prepend(prepend_text)
+
+                    $("#overlay").hide()
+                    $("#center_overlay").hide()
+                  },
+                  error: function() {
+                    console.log("something went wrong")
+                  },
+                })
+            })
+
+            $("ul#event_list").on("click", "li", function(item) {
+                item = $(item.target)
+
+                var event_id = item.attr("event_id")
+
+                $.ajax({
+                    type: "GET",
+                    url: '/get_event',
+                    data: {"event_id": event_id},
+
+                    success: function(text_response) {
+
+                        currentID = parseInt(event_id)
+
+                        window.history.pushState('', '', '/?event_id=' + event_id);
+
+                        var event_list = $("ul#event_list li");
+
+                        for(var i = 0; i < event_list.length; i++) {
+                            $(event_list[i]).removeClass("selected")
+                        }
+
+                        item.addClass("selected")
+
+
+                        var server_response = JSON.parse(text_response)
+                        $("#user_list_body").html("")
+
+                        for(var i = 0; i < server_response.length; i++) {
+
+                            var append_text = '<tr><td class="six wide">' +
+                                          server_response[i]["name"] +
+                                          '</td><td class="four wide">' +
+                                          server_response[i]["timeStamp"] +
+                                          '</td><td class="six wide">' +
+                                          "No" + '</td></tr>'
+
+                            $("#user_list_body").prepend(append_text)
+                        }
+                    },
+                    error: function() {
+                        console.log("something went wrong")
+                    },
+                })
+            })
+        })
     </script>
 {% endblock %}
