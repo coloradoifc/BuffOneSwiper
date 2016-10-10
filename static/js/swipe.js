@@ -41,6 +41,7 @@ var processSwipe = function() {
     var data = {
       studentID: swipeSplit[1],
       name: swipeSplit[2],
+      eventID: currentID,
       raw: swipeBuffer
     }
 
@@ -48,15 +49,26 @@ var processSwipe = function() {
       type: "POST",
       url: '/card-reader',
       data: data,
-      success: function() {
+      success: function(text_response) {
         $('#display-text').html('Successful. Swipe another card.');
         blink(1);
-        console.log('saved.');
+
+        var server_response = JSON.parse(text_response)
+
+        var prepend_text = "<tr>" +
+          "<td>" + server_response["name"] + "</td>" +
+          "<td>" + server_response["time"] + "</td>" +
+          "<td>" + server_response["blackList"] + "</td>" +
+          "</tr>"
+
+        console.log(prepend_text)
+
+        $("#user_list_body").prepend(prepend_text)
       },
       error: function() {
         $('#display-text').html('Couldn\'t save, please try again');
         blink(2);
-      }
+      },
     });
   } else {
     $('#display-text').html('Couldn\'t read card');
@@ -76,7 +88,7 @@ var validate = function(studentId, name) {
 var blink = function(n) {
   if (n > 0) {
     var elem = $('#display-text');
-    setTimeout(function () {
+    setTimeout(function() {
       elem.css('visibility', 'hidden');
       setTimeout(function() {
         elem.css('visibility', 'visible');
