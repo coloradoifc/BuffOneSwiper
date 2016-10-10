@@ -61,26 +61,39 @@
         </tr>
         {% endfor %}
         </tbody>
-      <tfoot class="full-width">
-        <tr>
-          <th></th>
-          <th colspan="4">
-            <!--div class="ui right floated small red labeled icon button">
-              <i class="user icon"></i> Blacklist User
-            </div-->
-          </th>
-        </tr>
-      </tfoot>
     </table>
+        </div>
+        <div class="right_side_footer">
+            <table id="user_list" class="ui celled table selectable striped">
+                <tfoot class="full-width">
+                <tr>
+                  <th></th>
+                  <th colspan="4">
+                    <div class="ui right floated small red labeled icon button blacklist_button">
+                      <i class="user icon"></i> Blacklist User
+                    </div>
+                  </th>
+                </tr>
+                </tfoot>
+            </table>
         </div>
     </div>
 
     <div id="overlay">
         <div id="center_overlay">
-            <h3>Create New Event</h3>
-            <input type="text" name="event_name" id="event_name">
-            <button id="submit_new_event">Submit</button>
-            <button id="close_new_event_window">Close Window</button>
+            <div id="event_center_overlay">
+                <h3>Create New Event</h3>
+                <input type="text" name="event_name" id="event_name">
+                <button id="submit_new_event">Submit</button>
+                <button class="close_new_event_window">Close Window</button>
+            </div>
+            <div id="blacklist_center_overlay">
+                <h3>Blacklist <span id="blacklist_name"></span></h3>
+                <label for="admin_password">Admin Password:</label>
+                <input type="password" name="admin_password" id="admin_password">
+                <button id="submit_new_blacklist">Submit</button>
+                <button class="close_new_event_window">Close Window</button>
+            </div>
         </div>
     </div>
 
@@ -95,37 +108,44 @@
             $("#event_create_button").on("click", function() {
               $("#overlay").show()
               $("#center_overlay").show()
+              $("#event_center_overlay").show()
             })
 
-            $("#close_new_event_window").on("click", function() {
+            $(".close_new_event_window").on("click", function() {
                 $("#overlay").hide()
                 $("#center_overlay").hide()
+                $("#event_center_overlay").hide()
+                $("#blacklist_center_overlay").hide()
             })
 
             $("#submit_new_event").on("click", function() {
 
-                var eventName = {"event_name": $("#event_name").val()}
+                if($("#event_name").val() != "") {
 
-                $.ajax({
-                  type: "POST",
-                  url: '/add_event',
-                  data: eventName,
-                  success: function(text_response) {
+                    var eventName = {"event_name": $("#event_name").val()}
 
-                    var server_response = JSON.parse(text_response)
+                    $.ajax({
+                      type: "POST",
+                      url: '/add_event',
+                      data: eventName,
+                      success: function(text_response) {
 
-                    var prepend_text = "<a><li event_id='" +
-                    server_response["url"] + "'>" + server_response["name"] +"</li></a>"
+                        var server_response = JSON.parse(text_response)
 
-                    $("#event_list").prepend(prepend_text)
+                        var prepend_text = "<a><li event_id='" +
+                        server_response["url"] + "'>" + server_response["name"] +"</li></a>"
 
-                    $("#overlay").hide()
-                    $("#center_overlay").hide()
-                  },
-                  error: function() {
-                    console.log("something went wrong")
-                  },
-                })
+                        $("#event_list").prepend(prepend_text)
+
+                        $("#overlay").hide()
+                        $("#center_overlay").hide()
+                        $("#event_center_overlay").hide()
+                      },
+                      error: function() {
+                        console.log("something went wrong")
+                      },
+                    })
+                }
             })
 
             $("ul#event_list").on("click", "li", function(item) {
@@ -172,6 +192,50 @@
                         console.log("something went wrong")
                     },
                 })
+            })
+
+            $("#user_list_body").on("click", "tr", function(item) {
+                item = $(item.target).parent()
+
+                var swiper_list = $("#user_list_body tr")
+
+                for(var i = 0; i < swiper_list.length; i++) {
+
+                    $(swiper_list[i]).removeClass("selected")
+                }
+
+                item.addClass("selected")
+            })
+
+            $("#user_list_body").on("click", "tr.selected", function(item) {
+                item = $(item.target).parent()
+
+                item.removeClass("selected")
+            })
+
+            $(".blacklist_button").on("click", function() {
+
+                var swiper_list = $("#user_list_body tr")
+                var name = ""
+
+                for(var i = 0; i < swiper_list.length; i++) {
+
+                    if($(swiper_list[i]).hasClass("selected")) {
+                        name = $($(swiper_list[i]).children()[0]).text()
+                    }
+                }
+
+                if(name != "") {
+                    $("#overlay").show()
+                    $("#center_overlay").show()
+                    $("#blacklist_center_overlay").show()
+
+                    $("#blacklist_name").text(name)
+                }
+            })
+
+            $("#submit_new_blacklist").on("click", function() {
+                console.log("oh ya fuck that kid")
             })
         })
     </script>

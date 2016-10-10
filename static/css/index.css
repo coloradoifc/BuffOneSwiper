@@ -229,6 +229,21 @@ button {
     display: none;
 }
 
+#event_center_overlay, #blacklist_center_overlay {
+    display: none;
+}
+
 .listview li.selected {
     background: #88dede;
+}
+
+#user_list_body tr.selected, #user_list_body tr.selected:hover {
+    background: blue !important;
+}
+
+.right_side_footer {
+    position: absolute;
+    bottom: 0px;
+    display: block;
+    width: 100%;
 }
