@@ -75,11 +75,13 @@ def index():
         connection = createDBConnection()
 
         cursor = connection.cursor()
-        sql = "SELECT users.email, chapters.name FROM users, chapters WHERE users.id=%s AND chapters.id = users.chapterID"
+        sql = "SELECT users.email, chapters.name FROM users, chapters WHERE " + \
+            "users.id=%s AND chapters.id = users.chapterID"
         cursor.execute(sql, (session["userID"]))
         results = cursor.fetchone()
 
-        sql = "SELECT id, name, chapterID FROM events WHERE chapterID = %s ORDER BY created_on DESC"
+        sql = "SELECT id, name, chapterID FROM events WHERE chapterID = %s " + \
+            "ORDER BY time_stamp DESC"
         cursor.execute(sql, (session["chapterID"]))
         event_list = cursor.fetchall()
 
@@ -99,19 +101,52 @@ def index():
                 item["selected"] = False
             print(item)
 
-        sql = "SELECT name, timeStamp FROM dataList WHERE chapterID = %s AND eventID = %s ORDER BY timeStamp DESC"
+        sql = "SELECT name, studentID, time_stamp FROM dataList WHERE " + \
+            "chapterID = %s AND eventID = %s ORDER BY time_stamp DESC"
         cursor.execute(sql, (session["chapterID"], eventID))
         dataList = cursor.fetchall()
+
+        for item in dataList:
+
+            item["time_stamp"] = item[
+                "time_stamp"].strftime("%I:%M %p %m/%d/%Y ")
+
+            sql = "SELECT chapters.id, chapters.short_name FROM chapters INNER JOIN " + \
+                "blacklist ON blacklist.chapterID = chapters.id WHERE " + \
+                "studentID=%s AND blacklisted=1"
+
+            cursor.execute(sql, (item["studentID"]))
+            blacklist_names = cursor.fetchall()
+
+            blacklist_names_string = ""
+            item["self_blacklisted"] = False
+            item["blacklisted"] = False
+
+            for bl_item in blacklist_names:
+
+                item["blacklisted"] = True
+                if bl_item["id"] == session["chapterID"]:
+
+                    item["self_blacklisted"] = True
+
+                    blacklist_names_string = bl_item[
+                        "short_name"] + blacklist_names_string
+                else:
+                    blacklist_names_string += "/" + bl_item["short_name"]
+
+            try:
+                if blacklist_names_string[0] == "/":
+                    blacklist_names_string = blacklist_names_string[1:]
+            except:
+                pass
+            item["blacklist"] = blacklist_names_string
 
         cursor.close()
         connection.close()
 
-        for item in dataList:
-            item["timeStamp"] = item[
-                "timeStamp"].strftime("%I:%M %p %m/%d/%Y ")
-
-        return render_template('index.html', chapter=results["name"], email=results["email"],
-                               dataList=dataList, event_list=event_list, eventID=eventID)
+        return render_template('index.html', chapter=results["name"],
+                               email=results["email"], dataList=dataList,
+                               event_list=event_list, eventID=eventID)
     else:
         return render_template('login.html')
 
@@ -148,7 +183,7 @@ def getEvent():
     connection = createDBConnection()
 
     cursor = connection.cursor()
-    sql = "SELECT name, timeStamp FROM dataList WHERE eventID=%s AND chapterID=%s"
+    sql = "SELECT name, time_stamp FROM dataList WHERE eventID=%s AND chapterID=%s"
     cursor.execute(sql, (event_id, session["chapterID"]))
     dataList = cursor.fetchall()
 
@@ -156,8 +191,8 @@ def getEvent():
     connection.close()
 
     for item in dataList:
-        item["timeStamp"] = item[
-            "timeStamp"].strftime("%I:%M %p %m/%d/%Y ")
+        item["time_stamp"] = item[
+            "time_stamp"].strftime("%I:%M %p %m/%d/%Y ")
 
     return json.dumps(dataList), status.HTTP_202_ACCEPTED
 
@@ -199,6 +234,39 @@ def removeSession():
     return redirect("/", code=303)
 
 
+@app.route("/blacklist", methods=["POST"])
+def blacklist():
+
+    studentID = request.form["studentID"]
+    adminPassword = request.form["password"]
+    shouldBlacklist = bool(request.form["shouldBlacklist"])
+
+    connection = createDBConnection()
+    cursor = connection.cursor()
+
+    sql = "SELECT password FROM users WHERE id=%s"
+    cursor.execute(sql, (session["userID"]))
+    dbPassword = cursor.fetchone()["password"]
+
+    if not checkPassword(adminPassword, dbPassword):
+        return "", status.HTTP_401_UNAUTHORIZED
+
+    if shouldBlacklist == True:
+
+        sql = "INSERT INTO blacklist(studentID, chapterID) VALUES(%s, %s) " + \
+            " ON DUPLICATE KEY UPDATE blacklisted = 1"
+        cursor.execute(sql, (studentID, session["chapterID"]))
+    else:
+        sql = "UPDATE blacklist SET blacklisted = 0 WHERE studentID = %s AND chapterID = %s"
+        cursor.execute(sql, (studentID, session["chapterID"]))
+
+    cursor.close()
+    connection.commit()
+    connection.close()
+
+    return "", status.HTTP_202_ACCEPTED
+
+
 @app.route("/card-reader", methods=["POST"])
 def cardReader():
     if isLoggedin() == False:
@@ -218,7 +286,7 @@ def cardReader():
     connection = createDBConnection()
 
     cursor = connection.cursor()
-    sql = "INSERT INTO dataList(name, studentID, cardText, userID, " + \
+    sql = "INSERT INTO dataList(name, studentID, card_text, userID, " + \
         "chapterID, eventID) VALUES(%s, %s, %s, %s, %s, %s)"
     cursor.execute(sql, (name, studentID, raw, userID, chapterID, eventID))
     cursor.close()

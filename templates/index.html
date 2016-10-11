@@ -54,10 +54,10 @@
       <tbody id="user_list_body">
 
         {% for item in dataList%}
-        <tr>
+        <tr studentID="{{item.studentID}}" {% if item.self_blacklisted %}class="self_blacklisted"{% elif item.blacklisted %}class="blacklisted"{% endif %}>
           <td class="six wide">{{item.name}}</td>
-          <td class="four wide">{{item.timeStamp}}</td>
-          <td class="six wide">No</td>
+          <td class="four wide">{{item.time_stamp}}</td>
+          <td class="six wide">{{item.blacklist}}</td>
         </tr>
         {% endfor %}
         </tbody>
@@ -91,6 +91,7 @@
                 <h3>Blacklist <span id="blacklist_name"></span></h3>
                 <label for="admin_password">Admin Password:</label>
                 <input type="password" name="admin_password" id="admin_password">
+                <div id="blacklist_error"></div>
                 <button id="submit_new_blacklist">Submit</button>
                 <button class="close_new_event_window">Close Window</button>
             </div>
@@ -217,11 +218,13 @@
 
                 var swiper_list = $("#user_list_body tr")
                 var name = ""
+                var studentID = ""
 
                 for(var i = 0; i < swiper_list.length; i++) {
 
                     if($(swiper_list[i]).hasClass("selected")) {
                         name = $($(swiper_list[i]).children()[0]).text()
+                        studentID = $(swiper_list[i]).attr("studentID")
                     }
                 }
 
@@ -229,13 +232,55 @@
                     $("#overlay").show()
                     $("#center_overlay").show()
                     $("#blacklist_center_overlay").show()
+                    $("#blacklist_error").text("")
 
                     $("#blacklist_name").text(name)
+                    $("#blacklist_name").attr("studentID", studentID)
                 }
             })
 
             $("#submit_new_blacklist").on("click", function() {
-                console.log("oh ya fuck that kid")
+
+                var password = $("#admin_password").val()
+                var studentID = $("#blacklist_name").attr("studentID")
+
+                $("#admin_password").val("")
+                $("#blacklist_error").text("")
+
+                var data = {"password" : password, "studentID": studentID, "shouldBlacklist" : 1}
+
+                $.ajax({
+                    type: "POST",
+                    url: '/blacklist',
+                    data: data,
+
+                    success: function(text_response) {
+
+                        $("#overlay").hide()
+                        $("#center_overlay").hide()
+                        $("#blacklist_center_overlay").hide()
+
+                        var swiper_list = $("#user_list_body tr")
+
+                        for(var i = 0; i < swiper_list.length; i++) {
+
+                            if ($(swiper_list[i]).attr("studentID") == studentID) {
+                                $(swiper_list[i]).addClass("self_blacklisted")
+
+                                var blacklist_list = $($(swiper_list[i]).children()[2])
+
+                                if(blacklist_list.text() == "No") {
+                                    blacklist_list.text("{{chapter}}")
+                                } else {
+                                    blacklist_list.text("{{chapter}}, " + blacklist_list.text())
+                                }
+                            }
+                        }
+                    },
+                    error: function() {
+                        $("#admin_password").val("Incorrect Password")
+                    },
+                })
             })
         })
     </script>

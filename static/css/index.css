@@ -247,3 +247,11 @@ button {
     display: block;
     width: 100%;
 }
+
+.self_blacklisted, .self_blacklisted:hover {
+    background: red !important;
+}
+
+.blacklisted {
+    background: orange !important;
+}
