@@ -70,7 +70,7 @@
                   <th></th>
                   <th colspan="4">
                     <div class="ui right floated small red labeled icon button blacklist_button">
-                      <i class="user icon"></i> Blacklist User
+                      <i class="user icon"></i><span id="blacklist_button_text">Blacklist User</span>
                     </div>
                   </th>
                 </tr>
@@ -88,7 +88,7 @@
                 <button class="close_new_event_window">Close Window</button>
             </div>
             <div id="blacklist_center_overlay">
-                <h3>Blacklist <span id="blacklist_name"></span></h3>
+                <h3><span id="blacklist_type"></span> <span id="blacklist_name"></span></h3>
                 <label for="admin_password">Admin Password:</label>
                 <input type="password" name="admin_password" id="admin_password">
                 <div id="blacklist_error"></div>
@@ -179,12 +179,15 @@
 
                         for(var i = 0; i < server_response.length; i++) {
 
-                            var append_text = '<tr><td class="six wide">' +
-                                          server_response[i]["name"] +
-                                          '</td><td class="four wide">' +
-                                          server_response[i]["timeStamp"] +
-                                          '</td><td class="six wide">' +
-                                          "No" + '</td></tr>'
+                            var blacklist_class = ""
+
+                            if(server_response[i]["self_blacklisted"]) {
+                                blacklist_class = " class='self_blacklisted'"
+                            } else if(server_response[i]["blacklisted"]) {
+                                blacklist_class = " class='blacklisted'"
+                            }
+
+                            var append_text = '<tr ' + blacklist_class + '><td class="six wide">' + server_response[i]["name"] + '</td><td class="four wide">' + server_response[i]["time_stamp"] + '</td><td class="six wide">' + server_response[i]["blacklist"] + '</td></tr>'
 
                             $("#user_list_body").prepend(append_text)
                         }
@@ -198,11 +201,17 @@
             $("#user_list_body").on("click", "tr", function(item) {
                 item = $(item.target).parent()
 
+                $("#blacklist_button_text").text("Blacklist User")
+
                 var swiper_list = $("#user_list_body tr")
 
                 for(var i = 0; i < swiper_list.length; i++) {
 
                     $(swiper_list[i]).removeClass("selected")
+                }
+
+                if(item.hasClass("self_blacklisted")) {
+                    $("#blacklist_button_text").text("Unblacklist User")
                 }
 
                 item.addClass("selected")
@@ -212,6 +221,10 @@
                 item = $(item.target).parent()
 
                 item.removeClass("selected")
+
+                if(item.hasClass("self_blacklisted")) {
+                    $("#blacklist_button_text").text("Blacklist User")
+                }
             })
 
             $(".blacklist_button").on("click", function() {
@@ -219,12 +232,16 @@
                 var swiper_list = $("#user_list_body tr")
                 var name = ""
                 var studentID = ""
+                var is_blacklisted = false
 
                 for(var i = 0; i < swiper_list.length; i++) {
 
                     if($(swiper_list[i]).hasClass("selected")) {
                         name = $($(swiper_list[i]).children()[0]).text()
                         studentID = $(swiper_list[i]).attr("studentID")
+                        if($(swiper_list[i]).hasClass("self_blacklisted")) {
+                            is_blacklisted = true
+                        }
                     }
                 }
 
@@ -236,6 +253,14 @@
 
                     $("#blacklist_name").text(name)
                     $("#blacklist_name").attr("studentID", studentID)
+
+                    if(is_blacklisted) {
+                        $("#blacklist_type").text("Unblacklist")
+                        $("#blacklist_type").attr("is_blacklisted", "true")
+                    } else {
+                        $("#blacklist_type").text("Blacklist")
+                        $("#blacklist_type").attr("is_blacklisted", "false")
+                    }
                 }
             })
 
@@ -246,8 +271,16 @@
 
                 $("#admin_password").val("")
                 $("#blacklist_error").text("")
+                var should_blacklist = true
 
-                var data = {"password" : password, "studentID": studentID, "shouldBlacklist" : 1}
+                if($("#blacklist_type").attr("is_blacklisted") == "true") {
+                    should_blacklist = false
+                    console.log("should blacklist")
+                }
+
+                console.log(should_blacklist)
+
+                var data = {"password" : password, "studentID": studentID, "shouldBlacklist" : should_blacklist}
 
                 $.ajax({
                     type: "POST",
@@ -265,20 +298,31 @@
                         for(var i = 0; i < swiper_list.length; i++) {
 
                             if ($(swiper_list[i]).attr("studentID") == studentID) {
-                                $(swiper_list[i]).addClass("self_blacklisted")
 
-                                var blacklist_list = $($(swiper_list[i]).children()[2])
+                                if(should_blacklist) {
+                                    $(swiper_list[i]).addClass("self_blacklisted")
 
-                                if(blacklist_list.text() == "No") {
-                                    blacklist_list.text("{{chapter}}")
+                                    var blacklist_list = $($(swiper_list[i]).children()[2])
+
+                                    if(blacklist_list.text() == "No") {
+                                        blacklist_list.text("{{chapter_short}}")
+                                    } else {
+                                        blacklist_list.text("{{chapter_short}}, " + blacklist_list.text())
+                                    }
                                 } else {
-                                    blacklist_list.text("{{chapter}}, " + blacklist_list.text())
+                                    $(swiper_list[i]).removeClass("self_blacklisted")
+
+                                    var blacklist_list = $($(swiper_list[i]).children()[2])
+                                    blacklist_list = blacklist_list.text().replace("{{chapter_short}}/", "")
+                                    blacklist_list = blacklist_list.replace("{{chapter_short}}", "")
+
+                                    $($(swiper_list[i]).children()[2]).text(blacklist_list)
                                 }
                             }
                         }
                     },
                     error: function() {
-                        $("#admin_password").val("Incorrect Password")
+                        $("#blacklist_error").val("Incorrect Password")
                     },
                 })
             })

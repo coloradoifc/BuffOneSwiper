@@ -248,7 +248,10 @@ button {
     width: 100%;
 }
 
-.self_blacklisted, .self_blacklisted:hover {
+tr.self_blacklisted {
+    background: red !important;
+}
+.self_blacklisted:hover {
     background: red !important;
 }
 
