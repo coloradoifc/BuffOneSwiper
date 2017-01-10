@@ -99,7 +99,6 @@ def index():
                 item["selected"] = True
             else:
                 item["selected"] = False
-            print(item)
 
         sql = "SELECT name, studentID, time_stamp FROM dataList WHERE " + \
             "chapterID = %s AND eventID = %s ORDER BY time_stamp DESC"
@@ -284,8 +283,6 @@ def blacklist():
     if not checkPassword(adminPassword, dbPassword):
         return "", status.HTTP_401_UNAUTHORIZED
 
-    print("shoudblack: " + str(shouldBlacklist))
-
     if shouldBlacklist == True:
 
         sql = "INSERT INTO blacklist(studentID, chapterID) VALUES(%s, %s) " + \
@@ -324,12 +321,43 @@ def cardReader():
     sql = "INSERT INTO dataList(name, studentID, card_text, userID, " + \
         "chapterID, eventID) VALUES(%s, %s, %s, %s, %s, %s)"
     cursor.execute(sql, (name, studentID, raw, userID, chapterID, eventID))
+
+    sql = "SELECT chapters.id, chapters.short_name FROM chapters INNER JOIN " + \
+        "blacklist ON blacklist.chapterID = chapters.id WHERE " + \
+        "studentID=%s AND blacklisted=1"
+
+    cursor.execute(sql, (studentID))
+    blacklist_names = cursor.fetchall()
+
     cursor.close()
     connection.commit()
     connection.close()
 
+    blacklist_names_string = ""
+    self_blacklisted = False
+    blacklisted = False
+
+    for bl_item in blacklist_names:
+
+        blacklisted = True
+        if bl_item["id"] == session["chapterID"]:
+
+            self_blacklisted = True
+
+            blacklist_names_string = bl_item[
+                "short_name"] + blacklist_names_string
+        else:
+            blacklist_names_string += "/" + bl_item["short_name"]
+
+    try:
+        if blacklist_names_string[0] == "/":
+            blacklist_names_string = blacklist_names_string[1:]
+    except:
+        pass
+
     returnDic = {"name": name, "time": datetime.now(
-    ).strftime("%I:%M %p %m/%d/%Y "), "blackList": ["No"]}
+    ).strftime("%I:%M %p %m/%d/%Y "), "blackList": blacklist_names_string,
+        "self_blacklisted": self_blacklisted, "blacklisted": blacklisted}
 
     return json.dumps(returnDic), status.HTTP_202_ACCEPTED
 

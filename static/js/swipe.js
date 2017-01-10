@@ -55,8 +55,16 @@ var processSwipe = function() {
 
         var server_response = JSON.parse(text_response)
 
-        var prepend_text = "<tr>" +
-          "<td>" + server_response["name"] + "</td>" +
+        var tr_class = ""
+
+        if (server_response["self_blacklisted"]) {
+          tr_class = "class='self_blacklisted'"
+        } else if (server_response["blackListed"]) {
+          tr_class = "class='blackListed'"
+        }
+
+        var prepend_text = "<tr " + tr_class +
+          "><td>" + server_response["name"] + "</td>" +
           "<td>" + server_response["time"] + "</td>" +
           "<td>" + server_response["blackList"] + "</td>" +
           "</tr>"
